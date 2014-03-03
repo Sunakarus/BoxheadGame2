@@ -18,9 +18,7 @@ namespace BoxheadGame2
         }
 
         public Texture2D texture { get; set; }
-
         public Vector2 position { get; set; }
-
         public Vector2 direction { get; set; }
 
         private Vector2 origin;
