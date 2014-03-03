@@ -1,13 +1,11 @@
 ﻿#region Using Statements
-using System;
-using System.Collections.Generic;
+
 using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
-using Microsoft.Xna.Framework.Storage;
-using Microsoft.Xna.Framework.GamerServices;
-#endregion
+using System;
+
+#endregion Using Statements
 
 namespace BoxheadGame2
 {
@@ -16,16 +14,16 @@ namespace BoxheadGame2
     /// </summary>
     public class Game1 : Game
     {
-        GraphicsDeviceManager graphics;
-        SpriteBatch spriteBatch;
-        Texture2D tPlayer, tCrate, tBullet, tZombie;
-        SpriteFont font;
-        Player player;
-        Controller controller;
+        private GraphicsDeviceManager graphics;
+        private SpriteBatch spriteBatch;
+        private Texture2D tPlayer, tCrate, tBullet, tZombie, tZombieAttack;
+        private SpriteFont font;
+        private Player player;
+        private Controller controller;
         public static Random random = new Random();
 
-        KeyboardState state, prevState;
-        bool drawHitbox = true;
+        private KeyboardState state, prevState;
+        private bool drawHitbox = true;
 
         //Texture2D tZombieAttack;
         //Animation ZombieAnim;
@@ -45,8 +43,6 @@ namespace BoxheadGame2
         /// </summary>
         protected override void Initialize()
         {
-            // TODO: Add your initialization logic here
-
             base.Initialize();
         }
 
@@ -54,35 +50,44 @@ namespace BoxheadGame2
         /// LoadContent will be called once per game and is the place to load
         /// all of your content.
         /// </summary>
+        ///
         protected override void LoadContent()
         {
-            // Create a new SpriteBatch, which can be used to draw textures.
             spriteBatch = new SpriteBatch(GraphicsDevice);
+
             tBullet = Content.Load<Texture2D>("bullet");
             tPlayer = Content.Load<Texture2D>("spr_Player");
             tCrate = Content.Load<Texture2D>("crate");
             font = Content.Load<SpriteFont>("tahoma");
             tZombie = Content.Load<Texture2D>("Zombie");
-            //tZombieAttack = Content.Load<Texture2D>("Zombie_attack");
-            
+            tZombieAttack = Content.Load<Texture2D>("Zombie_attack");
+
             player = new Player(tPlayer, new Vector2(200, 100));
             controller = new Controller(player);
+            LoadControllerContent();
+
             player.controller = controller;
             player.tBullet = tBullet;
 
-            //ZombieAnim = new Animation(ZombieAttack, 8, 4, 2, new Vector2(100,100), true, new Timer(10));
-
-            for (int i = 0; i<15; i++)
+            for (int i = 0; i < 15; i++)
             {
                 controller.crateList.Add(new Crate(tCrate, new Vector2(i * tCrate.Width, 0)));
                 controller.crateList.Add(new Crate(tCrate, new Vector2(i * tCrate.Width, graphics.PreferredBackBufferHeight - tCrate.Height)));
                 controller.crateList.Add(new Crate(tCrate, new Vector2(0, i * tCrate.Height)));
-                controller.crateList.Add(new Crate(tCrate, new Vector2(graphics.PreferredBackBufferWidth - tCrate.Width, i* tCrate.Height)));
-               
+                controller.crateList.Add(new Crate(tCrate, new Vector2(graphics.PreferredBackBufferWidth - tCrate.Width, i * tCrate.Height)));
             }
 
             state = Keyboard.GetState();
-            
+        }
+
+        public void LoadControllerContent()
+        {
+            controller.tBullet = tBullet;
+            controller.tPlayer = tPlayer;
+            controller.tCrate = tCrate;
+            controller.font = font;
+            controller.tZombie = tZombie;
+            controller.tZombieAttack = tZombieAttack;
         }
 
         /// <summary>
@@ -91,7 +96,6 @@ namespace BoxheadGame2
         /// </summary>
         protected override void UnloadContent()
         {
-
         }
 
         /// <summary>
@@ -109,11 +113,6 @@ namespace BoxheadGame2
 
             if (state.IsKeyDown(Keys.R))
             {
-                /*EnemyZombie a = new EnemyZombie(tZombie, new Vector2(random.Next(graphics.PreferredBackBufferWidth), random.Next(graphics.PreferredBackBufferHeight)), player, controller);
-                if (!a.controller.CollidesWithWall(a.hitbox) && !a.controller.CollidesWithPlayer(a.hitbox) && !a.GetEnemyCollision(a.hitbox, Vector2.Zero))
-                {
-                    controller.enemyList.Add(a);
-                }*/
                 controller.GenerateEnemyZombie(tZombie, new Rectangle(tCrate.Width, tCrate.Height, graphics.PreferredBackBufferWidth - 2 * tCrate.Width, graphics.PreferredBackBufferHeight - 2 * tCrate.Height));
             }
 

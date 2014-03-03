@@ -18,6 +18,12 @@ namespace BoxheadGame2
         public Controller controller;
         public Circle hitbox;
 
+        public int health;
+        public int maxHealth = 100;
+
+        public bool invincible = true;
+        public Timer invincibleTimer = new Timer(60);
+
         public Player(Texture2D texture, Vector2 position)
         {
             this.texture = texture;
@@ -26,6 +32,8 @@ namespace BoxheadGame2
             mouseState = Mouse.GetState();
             hitbox = new Circle(texture.Width / 2, position);
             velocity = Vector2.Zero;
+
+            health = maxHealth;
         }
 
         public void Update()
@@ -34,6 +42,12 @@ namespace BoxheadGame2
             prevMouse = mouseState;
             keyState = Keyboard.GetState();
             mouseState = Mouse.GetState();
+
+            invincibleTimer.Update();
+            if (invincibleTimer.value <= 0 && invincible)
+            {
+                invincible = false;
+            }
 
             Vector2 mousePosition = new Vector2(mouseState.X, mouseState.Y);
             direction = mousePosition - position;
@@ -47,25 +61,21 @@ namespace BoxheadGame2
 
             if (keyState.IsKeyDown(Keys.W) && keyState.IsKeyUp(Keys.S))
             {
-                //  if (!GetWallCollision(futureHitbox, new Vector2(0,-movementSpeed)))
                 velocity.Y = -movementSpeed;
             }
 
             if (keyState.IsKeyDown(Keys.S) && keyState.IsKeyUp(Keys.W))
             {
-                //   if (!GetWallCollision(futureHitbox, new Vector2(0, movementSpeed)))
                 velocity.Y = movementSpeed;
             }
 
             if (keyState.IsKeyDown(Keys.A) && keyState.IsKeyUp(Keys.D))
             {
-                // if (!GetWallCollision(futureHitbox, new Vector2(-movementSpeed, 0)))
                 velocity.X = -movementSpeed;
             }
 
             if (keyState.IsKeyDown(Keys.D) && keyState.IsKeyUp(Keys.A))
             {
-                //if (!GetWallCollision(futureHitbox, new Vector2(movementSpeed, 0)))
                 velocity.X = movementSpeed;
             }
 
@@ -81,8 +91,7 @@ namespace BoxheadGame2
 
             if (mouseState.LeftButton == ButtonState.Pressed && prevMouse.LeftButton == ButtonState.Released)
             {
-                controller.bulletList.Add(new Bullet(tBullet, position + direction * (hitbox.radius + tBullet.Width / 2), direction));
-                Console.WriteLine(" + " + controller.bulletList.Count);
+                controller.bulletList.Add(new Bullet(tBullet, position + direction * (hitbox.radius + Bullet.radius), direction));
             }
 
             Vector2 tempVel = Vector2.Zero;
@@ -101,6 +110,8 @@ namespace BoxheadGame2
 
             position += tempVel;
             hitbox.position = position;
+
+
         }
 
         public bool GetWallCollision(Circle circle, Vector2 offset)

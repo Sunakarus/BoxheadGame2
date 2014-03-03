@@ -4,11 +4,10 @@ using Microsoft.Xna.Framework.Graphics;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 
 namespace BoxheadGame2
 {
-    class Enemy
+    internal class Enemy
     {
         public Texture2D texture;
         public Vector2 position, origin, direction, velocity = Vector2.Zero;
@@ -18,8 +17,11 @@ namespace BoxheadGame2
         public Controller controller;
 
         public enum State { Attack, Idle, Dead };
+
         public State state;
-        
+        public int damage;
+        public Timer attackDelay;
+
 
         public Enemy(Texture2D texture, Vector2 position, Player target, Controller controller)
         {
@@ -32,14 +34,18 @@ namespace BoxheadGame2
             radius = (texture.Width / 2 + texture.Height / 2) / 2 - 2;
             hitbox = new Circle(radius, position - new Vector2(radius, radius));
             state = State.Idle;
+
+            direction = target.position - position;
+            direction.Normalize();
+            rotation = (float)Math.Atan2((double)direction.Y, (double)direction.X);
         }
 
         public virtual void Update()
         {
-            hitbox = new Circle(radius, position - new Vector2(radius, radius));
+            /*hitbox = new Circle(radius, position - new Vector2(radius, radius));
             direction = target.position - position;
             direction.Normalize();
-            rotation = (float)Math.Atan2((double)direction.Y, (double)direction.X); 
+            rotation = (float)Math.Atan2((double)direction.Y, (double)direction.X);*/
         }
 
         public bool GetWallCollision(Circle circle, Vector2 offset)
@@ -67,7 +73,7 @@ namespace BoxheadGame2
             circle.position += offset;
             List<Enemy> tempList = controller.enemyList.ToList<Enemy>();
 
-            for (int i = tempList.Count - 1; i > -1;i-- )
+            for (int i = tempList.Count - 1; i > -1; i--)
             {
                 if (tempList[i] == this)
                 {
@@ -90,6 +96,5 @@ namespace BoxheadGame2
         {
             state = State.Dead;
         }
-
     }
 }
