@@ -10,7 +10,7 @@ namespace BoxheadGame2
     {
         private Texture2D texture;
         public Texture2D tBullet;
-        private Vector2 position;
+        public Vector2 position;
         private KeyboardState keyState, prevKey;
         private MouseState mouseState, prevMouse;
         private float movementSpeed = 5f, rotation = 0;
@@ -87,14 +87,14 @@ namespace BoxheadGame2
 
             Vector2 tempVel = Vector2.Zero;
 
-            if (!GetWallCollision(futureHitbox, new Vector2(velocity.X, 0)))
+            if (!GetWallCollision(futureHitbox, new Vector2(velocity.X, 0)) && !GetEnemyCollision(futureHitbox, new Vector2(0, velocity.Y)))
             {
                 tempVel.X = velocity.X;
             }
 
             futureHitbox = new Circle(hitbox.radius, hitbox.position - new Vector2(hitbox.radius, hitbox.radius));
 
-            if (!GetWallCollision(futureHitbox, new Vector2(0, velocity.Y)))
+            if (!GetWallCollision(futureHitbox, new Vector2(0, velocity.Y)) && !GetEnemyCollision(futureHitbox, new Vector2(0, velocity.Y)))
             {
                 tempVel.Y = velocity.Y;
             }
@@ -107,6 +107,16 @@ namespace BoxheadGame2
         {
             circle.position += offset;
             if (controller.CollidesWithWall(circle))
+            {
+                return true;
+            }
+            return false;
+        }
+
+        public bool GetEnemyCollision(Circle circle, Vector2 offset)
+        {
+            circle.position += offset;
+            if (controller.CollidesWithEnemy(circle))
             {
                 return true;
             }
