@@ -32,14 +32,15 @@ namespace BoxheadGame2
 
         public void Update()
         {
+            if (value <= 0 && loop)
+            {
+                Reset();
+            }
             if (value>0)
             {
                 value--;
             }
-            if (value<=0 && loop)
-            {
-                Reset();
-            }
+
         }
 
         public void Reset()

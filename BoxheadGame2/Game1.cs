@@ -16,17 +16,19 @@ namespace BoxheadGame2
     {
         private GraphicsDeviceManager graphics;
         private SpriteBatch spriteBatch;
-        private Texture2D tPlayer, tCrate, tBullet, tZombie, tZombieAttack;
+        private Texture2D tPlayer, tCrate, tBullet, tZombie, tZombieAttack, tSpawner;
         private SpriteFont font;
         private Player player;
         private Controller controller;
         public static Random random = new Random();
+        private LevelEditor levelEditor;
+        private Gameplay gamePlay;
 
         private KeyboardState state, prevState;
-        private bool drawHitbox = true;
 
-        //Texture2D tZombieAttack;
-        //Animation ZombieAnim;
+        private enum Screen { Menu, Editor, Game }
+
+        private static Screen screen = Screen.Editor;
 
         public Game1()
             : base()
@@ -61,21 +63,22 @@ namespace BoxheadGame2
             font = Content.Load<SpriteFont>("tahoma");
             tZombie = Content.Load<Texture2D>("Zombie");
             tZombieAttack = Content.Load<Texture2D>("Zombie_attack");
+            tSpawner = Content.Load<Texture2D>("spawn");
 
             player = new Player(tPlayer, new Vector2(200, 100));
             controller = new Controller(player);
             LoadControllerContent();
-
+            gamePlay = new Gameplay(graphics, controller, player);
+            gamePlay.LoadTextures(tPlayer, tCrate, tZombie, tSpawner, font);
+            LoadGameplayContent();
+            /*
+            camera = new Camera(player, graphics);
+            player.camera = camera;
             player.controller = controller;
-            player.tBullet = tBullet;
+            player.tBullet = tBullet;*/
 
-            for (int i = 0; i < 15; i++)
-            {
-                controller.crateList.Add(new Crate(tCrate, new Vector2(i * tCrate.Width, 0)));
-                controller.crateList.Add(new Crate(tCrate, new Vector2(i * tCrate.Width, graphics.PreferredBackBufferHeight - tCrate.Height)));
-                controller.crateList.Add(new Crate(tCrate, new Vector2(0, i * tCrate.Height)));
-                controller.crateList.Add(new Crate(tCrate, new Vector2(graphics.PreferredBackBufferWidth - tCrate.Width, i * tCrate.Height)));
-            }
+            levelEditor = new LevelEditor(graphics, spriteBatch);
+            levelEditor.LoadTextures(tPlayer, tCrate, tZombie, tSpawner, font);
 
             state = Keyboard.GetState();
         }
@@ -88,6 +91,16 @@ namespace BoxheadGame2
             controller.font = font;
             controller.tZombie = tZombie;
             controller.tZombieAttack = tZombieAttack;
+        }
+
+        public void LoadGameplayContent()
+        {
+            gamePlay.tBullet = tBullet;
+            gamePlay.tPlayer = tPlayer;
+            gamePlay.tCrate = tCrate;
+            gamePlay.font = font;
+            gamePlay.tZombie = tZombie;
+            gamePlay.tZombieAttack = tZombieAttack;
         }
 
         /// <summary>
@@ -111,18 +124,34 @@ namespace BoxheadGame2
             prevState = state;
             state = Keyboard.GetState();
 
-            if (state.IsKeyDown(Keys.R))
+            if (state.IsKeyDown(Keys.D8) && prevState.IsKeyUp(Keys.D8))
             {
-                controller.GenerateEnemyZombie(tZombie, new Rectangle(tCrate.Width, tCrate.Height, graphics.PreferredBackBufferWidth - 2 * tCrate.Width, graphics.PreferredBackBufferHeight - 2 * tCrate.Height));
+                gamePlay.ResetLevel();
+                gamePlay.LoadTextures(tPlayer, tCrate, tZombie, tSpawner, font);
+                gamePlay.LoadLevel();
+                screen = Screen.Game;
             }
 
-            if (state.IsKeyDown(Keys.T) && prevState.IsKeyUp(Keys.T))
+            if (state.IsKeyDown(Keys.D9) && prevState.IsKeyUp(Keys.D9))
             {
-                drawHitbox = !drawHitbox;
+                levelEditor.Reset();
+                screen = Screen.Editor;
             }
 
-            player.Update();
-            controller.Update();
+            switch (screen)
+            {
+                case Screen.Game:
+                    {
+                        gamePlay.Update();
+                        break;
+                    }
+                case Screen.Editor:
+                    {
+                        levelEditor.Update();
+                        break;
+                    }
+            }
+
             base.Update(gameTime);
         }
 
@@ -133,22 +162,20 @@ namespace BoxheadGame2
         protected override void Draw(GameTime gameTime)
         {
             GraphicsDevice.Clear(Color.CornflowerBlue);
-            spriteBatch.Begin();
-            controller.Draw(spriteBatch);
-            player.Draw(spriteBatch);
-            if (drawHitbox)
-            {
-                player.hitbox.Draw(tBullet, spriteBatch);
-                foreach (Enemy e in controller.enemyList)
-                {
-                    if (e is EnemyZombie)
-                    {
-                        (e as EnemyZombie).hitbox.Draw(tBullet, spriteBatch);
-                    }
-                }
-            }
-            spriteBatch.End();
 
+            switch (screen)
+            {
+                case Screen.Game:
+                    {
+                        gamePlay.Draw(spriteBatch);
+                        break;
+                    }
+                case Screen.Editor:
+                    {
+                        levelEditor.Draw();
+                        break;
+                    }
+            }
             base.Draw(gameTime);
         }
     }

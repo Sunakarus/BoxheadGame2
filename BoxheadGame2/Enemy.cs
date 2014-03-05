@@ -22,7 +22,6 @@ namespace BoxheadGame2
         public int damage;
         public Timer attackDelay;
 
-
         public Enemy(Texture2D texture, Vector2 position, Player target, Controller controller)
         {
             this.texture = texture;

@@ -1,23 +1,19 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using Microsoft.Xna.Framework.Input;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 
 namespace BoxheadGame2
 {
-    class Animation
+    internal class Animation
     {
-        Texture2D texture;
+        private Texture2D texture;
         public Vector2 position;
         public int columns, rows, currentColumn, currentRow, currentFrame = 1, totalFrames;
         public int width, height;
-        Rectangle sourceRectangle, destinationRectangle;
+        private Rectangle sourceRectangle, destinationRectangle;
         public SpriteEffects spriteEffect = SpriteEffects.None;
         public int scale = 1;
-        bool loop = false;
+        private bool loop = false;
         public int delay;
         public int maxDelay;
 
@@ -49,15 +45,15 @@ namespace BoxheadGame2
 
                 delay = maxDelay;
             }
-            else if (delay>0)
+            else if (delay > 0)
             {
                 delay--;
             }
         }
 
-        public void Draw(SpriteBatch spriteBatch, Vector2 position, float rotation,  Vector2 origin)
+        public void Draw(SpriteBatch spriteBatch, Vector2 position, float rotation, Vector2 origin)
         {
-            currentRow = (int)(Math.Ceiling((float)currentFrame/(float)columns));
+            currentRow = (int)(Math.Ceiling((float)currentFrame / (float)columns));
 
             if (currentFrame % columns == 0)
             {
@@ -68,14 +64,13 @@ namespace BoxheadGame2
                 currentColumn = currentFrame % columns;
             }
 
-            width = texture.Width/columns;
-            height = texture.Height/rows;
+            width = texture.Width / columns;
+            height = texture.Height / rows;
 
-            sourceRectangle = new Rectangle((currentColumn-1) * width, (currentRow-1) * height, width, height);
+            sourceRectangle = new Rectangle((currentColumn - 1) * width, (currentRow - 1) * height, width, height);
             destinationRectangle = new Rectangle((int)position.X, (int)position.Y, width, height);
 
-            spriteBatch.Draw(texture, destinationRectangle, sourceRectangle , Color.White, rotation, origin, spriteEffect, 0);
-
+            spriteBatch.Draw(texture, destinationRectangle, sourceRectangle, Color.White, rotation, origin, spriteEffect, 0);
         }
 
         public override string ToString()

@@ -17,6 +17,7 @@ namespace BoxheadGame2
         public Vector2 direction, velocity;
         public Controller controller;
         public Circle hitbox;
+        public Camera camera;
 
         public int health;
         public int maxHealth = 100;
@@ -49,7 +50,7 @@ namespace BoxheadGame2
                 invincible = false;
             }
 
-            Vector2 mousePosition = new Vector2(mouseState.X, mouseState.Y);
+            Vector2 mousePosition = new Vector2(mouseState.X, mouseState.Y) + camera.position;
             direction = mousePosition - position;
             Circle futureHitbox = new Circle(hitbox.radius, hitbox.position - new Vector2(hitbox.radius, hitbox.radius));
 
@@ -110,8 +111,11 @@ namespace BoxheadGame2
 
             position += tempVel;
             hitbox.position = position;
+        }
 
-
+        public void Reset()
+        {
+            health = maxHealth;
         }
 
         public bool GetWallCollision(Circle circle, Vector2 offset)

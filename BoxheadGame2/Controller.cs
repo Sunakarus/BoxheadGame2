@@ -1,7 +1,6 @@
 ﻿using CircleCollisions;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using System;
 using System.Collections.Generic;
 
 namespace BoxheadGame2
@@ -11,12 +10,16 @@ namespace BoxheadGame2
         public List<Bullet> bulletList = new List<Bullet>();
         public List<Crate> crateList = new List<Crate>();
         public List<Enemy> enemyList = new List<Enemy>();
+        public List<Spawner> spawnList = new List<Spawner>();
 
         public Player player;
 
         public Texture2D tZombieAttack;
         public Texture2D tPlayer, tCrate, tBullet, tZombie;
         public SpriteFont font;
+
+        public Timer timeTillSpawn = new Timer(60, 60, true);
+        private int maxEnemies = 50;
 
         public Controller(Player player)
         {
@@ -25,6 +28,8 @@ namespace BoxheadGame2
 
         public void Update()
         {
+            timeTillSpawn.Update();
+
             for (int i = bulletList.Count - 1; i > -1; i--)
             {
                 bool breakAll = false;
@@ -73,7 +78,6 @@ namespace BoxheadGame2
                 if (enemyList[i].state == Enemy.State.Attack && !player.invincible && enemyList[i].attackDelay.value <= 0)
                 {
                     player.health -= enemyList[i].damage;
-                    Console.WriteLine(player.health);
                     enemyList[i].attackDelay.Reset();
                     player.invincible = true;
                     player.invincibleTimer.Reset();
@@ -122,30 +126,34 @@ namespace BoxheadGame2
 
         public void GenerateEnemyZombie(Texture2D texture, Rectangle area)
         {
-            Vector2 pos;
-            EnemyZombie a;
-            int counter = 10;
+            if (enemyList.Count < maxEnemies)
+            {
+                Vector2 pos;
+                EnemyZombie a;
+                int counter = 10;
 
-            do
-            {
-                pos = new Vector2(Game1.random.Next(area.Width + 1) + area.X, Game1.random.Next(area.Height + 1) + area.Y);
-                a = new EnemyZombie(texture, pos, player, this, tZombieAttack);
-                counter--;
-            }
+                do
+                {
+                    pos = new Vector2(Game1.random.Next(area.Width + 1) + area.X, Game1.random.Next(area.Height + 1) + area.Y);
+                    a = new EnemyZombie(texture, pos, player, this, tZombieAttack);
+                    counter--;
+                }
 
-            while ((CollidesWithWall(a.hitbox) || CollidesWithPlayer(a.hitbox) || a.GetEnemyCollision(a.hitbox, Vector2.Zero)) && (counter > 0));
-            if (counter > 0)
-            {
-                this.enemyList.Add(a);
-            }
-            else
-            {
-                Console.WriteLine("Spawning EnemyZombie failed.");
+                while ((CollidesWithWall(a.hitbox) || CollidesWithPlayer(a.hitbox) || a.GetEnemyCollision(a.hitbox, Vector2.Zero)) && (counter > 0));
+                if (counter > 0)
+                {
+                    this.enemyList.Add(a);
+                }
             }
         }
 
-        public void Draw(SpriteBatch spriteBatch)
+        public void Draw(SpriteBatch spriteBatch, Camera camera)
         {
+            foreach (Spawner s in spawnList)
+            {
+                spriteBatch.Draw(s.texture, s.position, null, Color.White, 0, Vector2.Zero, 1, SpriteEffects.None, 0);
+            }
+
             foreach (Crate c in crateList)
             {
                 c.Draw(spriteBatch);
@@ -154,6 +162,10 @@ namespace BoxheadGame2
             {
                 b.Draw(spriteBatch);
             }
+            foreach (Spawner s in spawnList)
+            {
+                spriteBatch.Draw(s.texture, s.position, Color.White);
+            }
             foreach (Enemy e in enemyList)
             {
                 if (e is EnemyZombie)
@@ -161,7 +173,7 @@ namespace BoxheadGame2
                     (e as EnemyZombie).Draw(spriteBatch);
                 }
             }
-            spriteBatch.DrawString(font, "HEALTH: " + player.health, Vector2.Zero, Color.White);
+            spriteBatch.DrawString(font, "HEALTH: " + player.health, camera.position, Color.White);
         }
     }
 }

@@ -13,6 +13,7 @@ namespace CircleCollisions
         public Texture2D texture;
         public Vector2 origin, position;
         SpriteBatch spriteBatch;
+        public float alpha = 0.7f;
 
         public Circle(float radius, Vector2 position, SpriteBatch spriteBatch, Texture2D texture)
         {
@@ -38,6 +39,21 @@ namespace CircleCollisions
             double sqrDistance = Math.Pow((this.position.X - circle.position.X), 2.0d) + Math.Pow((this.position.Y - circle.position.Y), 2.0d);
             double sqrRadius = Math.Pow(this.radius + circle.radius, 2);
             return (sqrDistance <= sqrRadius);
+
+        }
+
+        public double GetCircleColDepth(Circle circle)
+        {
+            if (CollidesWithCircle(circle))
+            {
+                double Distance = ((this.position - new Vector2(this.radius, this.radius)) - (circle.position - new Vector2(circle.radius, circle.radius))).Length();
+                double Radius = this.radius + circle.radius;
+                return Radius - Distance;
+            }
+            else
+            {
+                return 0f;
+            }
 
         }
 
@@ -73,7 +89,7 @@ namespace CircleCollisions
             if (spriteBatch != null && texture != null)
             {
                 scale = radius * 2 / texture.Width;
-                spriteBatch.Draw(texture, position, null, Color.White, 0, origin, scale, SpriteEffects.None, 1);
+                spriteBatch.Draw(texture, position, null, Color.White * alpha, 0, origin, scale, SpriteEffects.None, 1);
             }
         }
 
@@ -82,7 +98,7 @@ namespace CircleCollisions
             if (this.spriteBatch == null && this.texture == null)
             {
                 scale = radius * 2 / texture.Width;
-                spriteBatch.Draw(texture, position - new Vector2(radius, radius), null, Color.White, 0, Vector2.Zero, scale, SpriteEffects.None, 1);
+                spriteBatch.Draw(texture, position - new Vector2(radius, radius), null, Color.White * alpha, 0, Vector2.Zero, scale, SpriteEffects.None, 1);
             }
         }
 

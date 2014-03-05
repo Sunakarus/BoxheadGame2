@@ -1,13 +1,9 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 
 namespace BoxheadGame2
 {
-    class Crate
+    internal class Crate
     {
         public Crate(Texture2D texture, Vector2 position)
         {
@@ -16,7 +12,7 @@ namespace BoxheadGame2
             hitbox = new Rectangle((int)position.X, (int)position.Y, texture.Width, texture.Height);
         }
 
-        Texture2D texture;
+        private Texture2D texture;
         public Vector2 position;
         public Rectangle hitbox;
 
