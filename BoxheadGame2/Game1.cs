@@ -70,6 +70,7 @@ namespace BoxheadGame2
             LoadControllerContent();
             gamePlay = new Gameplay(graphics, controller, player);
             gamePlay.LoadTextures(tPlayer, tCrate, tZombie, tSpawner, font);
+            controller.gamePlay = gamePlay;
             LoadGameplayContent();
             /*
             camera = new Camera(player, graphics);

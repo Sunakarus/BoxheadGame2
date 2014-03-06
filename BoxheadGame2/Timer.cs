@@ -43,6 +43,15 @@ namespace BoxheadGame2
 
         }
 
+        public bool IsActive()
+        {
+            if (value>0)
+            {
+                return true;
+            }
+            return false;
+        }
+
         public void Reset()
         {
             value = maxValue;

@@ -7,7 +7,7 @@ namespace BoxheadGame2
 {
     internal class EnemyZombie : Enemy
     {
-        private float movementSpeed = 0.8f;
+        private float movementSpeed = 1f;
 
         public Texture2D atAttack;
         public Animation aAttack;
@@ -22,11 +22,12 @@ namespace BoxheadGame2
             state = State.Idle;
             atAttack = atTexture;
 
+            scoreValue = 10;
             damage = 10;
             attackDelay = new Timer(15);
             aAttack = new Animation(atAttack, 8, 4, 2, position, true, new Timer(attackSpeed));
 
-            //movementSpeed += (float)Game1.random.NextDouble()/2;
+            movementSpeed += controller.difficulty * 0.4f;
         }
 
         public Vector2 TryMove(Circle circle, Vector2 offset)
@@ -79,19 +80,6 @@ namespace BoxheadGame2
 
             position += tempVel;
             hitbox.position = position;
-            //direction = target.position - position;
-            /*if (tempVel == Vector2.Zero && state != State.Attack && GetEnemyCollision(hitbox, Vector2.Zero))
-            {
-                direction = target.position - position;
-                float ran = (float)Game1.random.NextDouble();
-                direction += new Vector2(ran, ran);
-                ran = (float)Game1.random.NextDouble() *2;
-                direction -= new Vector2(ran, ran);
-
-                rotation = (float)Math.Atan2((double)direction.Y, (double)direction.X);
-            }
-            else
-            {*/
             direction = target.position - position;
             direction.Normalize();
             rotation = (float)Math.Atan2((double)direction.Y, (double)direction.X);

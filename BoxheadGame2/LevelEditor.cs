@@ -35,7 +35,9 @@ namespace BoxheadGame2
         private int closest1, closest2;
         private int cameraSpeed = 8;
 
-        private string dirPath = @"C:\Users\HanThi\Disk Google\Dropbox\Projects\BoxheadGame2\level.txt";
+        //private string dirPath = @"C:\Users\HanThi\Disk Google\Dropbox\Projects\BoxheadGame2\level.txt";
+        private string dirPath = @"level.txt";
+
         private string message = "";
 
         private int savedTimer = 0;
@@ -400,7 +402,7 @@ namespace BoxheadGame2
                 if (showVector)
                     spriteBatch.DrawString(font, player.ToString(), player, Color.Black);
             }
-            spriteBatch.DrawString(font, "P: save\nQ: snap to X\nE: snap to Y\nSelected: " + select + "\nT: toggle vectors\nR: clear all", camera.position, Color.Black);
+            spriteBatch.DrawString(font, "P: save\nQ: snap to X\nE: snap to Y\nSelected: " + select + "\nT: toggle vectors\nR: clear all\nPRESS 8 TO START THE GAME", camera.position, Color.Black);
 
             if (savedTimer > 0)
             {

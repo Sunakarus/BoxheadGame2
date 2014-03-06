@@ -22,8 +22,13 @@ namespace BoxheadGame2
         public int health;
         public int maxHealth = 100;
 
+        public int score = 0;
+
         public bool invincible = true;
         public Timer invincibleTimer = new Timer(60);
+
+        public bool isDead = false;
+        public Timer respawnTimer = new Timer(300);
 
         public Player(Texture2D texture, Vector2 position)
         {
@@ -45,77 +50,98 @@ namespace BoxheadGame2
             mouseState = Mouse.GetState();
 
             invincibleTimer.Update();
+
             if (invincibleTimer.value <= 0 && invincible)
             {
                 invincible = false;
             }
 
-            Vector2 mousePosition = new Vector2(mouseState.X, mouseState.Y) + camera.position;
-            direction = mousePosition - position;
-            Circle futureHitbox = new Circle(hitbox.radius, hitbox.position - new Vector2(hitbox.radius, hitbox.radius));
-
-            if (direction.Length() != 0)
+            if (health <= 0 && !isDead)
             {
-                direction.Normalize();
-                rotation = (float)Math.Atan2((double)direction.Y, (double)direction.X);
+                Death();
             }
 
-            if (keyState.IsKeyDown(Keys.W) && keyState.IsKeyUp(Keys.S))
+            if (isDead && !respawnTimer.IsActive())
             {
-                velocity.Y = -movementSpeed;
+                controller.gamePlay.ResetLevel();
+                Reset();
             }
 
-            if (keyState.IsKeyDown(Keys.S) && keyState.IsKeyUp(Keys.W))
+            if (!isDead)
             {
-                velocity.Y = movementSpeed;
-            }
+                Vector2 mousePosition = new Vector2(mouseState.X, mouseState.Y) + camera.position;
+                direction = mousePosition - position;
+                Circle futureHitbox = new Circle(hitbox.radius, hitbox.position - new Vector2(hitbox.radius, hitbox.radius));
 
-            if (keyState.IsKeyDown(Keys.A) && keyState.IsKeyUp(Keys.D))
+                if (direction.Length() != 0)
+                {
+                    direction.Normalize();
+                    rotation = (float)Math.Atan2((double)direction.Y, (double)direction.X);
+                }
+
+                if (keyState.IsKeyDown(Keys.W) && keyState.IsKeyUp(Keys.S))
+                {
+                    velocity.Y = -movementSpeed;
+                }
+
+                if (keyState.IsKeyDown(Keys.S) && keyState.IsKeyUp(Keys.W))
+                {
+                    velocity.Y = movementSpeed;
+                }
+
+                if (keyState.IsKeyDown(Keys.A) && keyState.IsKeyUp(Keys.D))
+                {
+                    velocity.X = -movementSpeed;
+                }
+
+                if (keyState.IsKeyDown(Keys.D) && keyState.IsKeyUp(Keys.A))
+                {
+                    velocity.X = movementSpeed;
+                }
+
+                if (keyState.IsKeyUp(Keys.W) && keyState.IsKeyUp(Keys.S))
+                {
+                    velocity.Y = 0;
+                }
+
+                if (keyState.IsKeyUp(Keys.A) && keyState.IsKeyUp(Keys.D))
+                {
+                    velocity.X = 0;
+                }
+
+                if (mouseState.LeftButton == ButtonState.Pressed && prevMouse.LeftButton == ButtonState.Released)
+                {
+                    controller.bulletList.Add(new Bullet(tBullet, position + direction * (hitbox.radius + Bullet.radius), direction));
+                }
+
+                Vector2 tempVel = Vector2.Zero;
+
+                if (!GetWallCollision(futureHitbox, new Vector2(velocity.X, 0)) && !GetEnemyCollision(futureHitbox, new Vector2(0, velocity.Y)))
+                {
+                    tempVel.X = velocity.X;
+                }
+
+                futureHitbox = new Circle(hitbox.radius, hitbox.position - new Vector2(hitbox.radius, hitbox.radius));
+
+                if (!GetWallCollision(futureHitbox, new Vector2(0, velocity.Y)) && !GetEnemyCollision(futureHitbox, new Vector2(0, velocity.Y)))
+                {
+                    tempVel.Y = velocity.Y;
+                }
+
+                position += tempVel;
+                hitbox.position = position;
+            }
+            else
             {
-                velocity.X = -movementSpeed;
+                respawnTimer.Update();
             }
-
-            if (keyState.IsKeyDown(Keys.D) && keyState.IsKeyUp(Keys.A))
-            {
-                velocity.X = movementSpeed;
-            }
-
-            if (keyState.IsKeyUp(Keys.W) && keyState.IsKeyUp(Keys.S))
-            {
-                velocity.Y = 0;
-            }
-
-            if (keyState.IsKeyUp(Keys.A) && keyState.IsKeyUp(Keys.D))
-            {
-                velocity.X = 0;
-            }
-
-            if (mouseState.LeftButton == ButtonState.Pressed && prevMouse.LeftButton == ButtonState.Released)
-            {
-                controller.bulletList.Add(new Bullet(tBullet, position + direction * (hitbox.radius + Bullet.radius), direction));
-            }
-
-            Vector2 tempVel = Vector2.Zero;
-
-            if (!GetWallCollision(futureHitbox, new Vector2(velocity.X, 0)) && !GetEnemyCollision(futureHitbox, new Vector2(0, velocity.Y)))
-            {
-                tempVel.X = velocity.X;
-            }
-
-            futureHitbox = new Circle(hitbox.radius, hitbox.position - new Vector2(hitbox.radius, hitbox.radius));
-
-            if (!GetWallCollision(futureHitbox, new Vector2(0, velocity.Y)) && !GetEnemyCollision(futureHitbox, new Vector2(0, velocity.Y)))
-            {
-                tempVel.Y = velocity.Y;
-            }
-
-            position += tempVel;
-            hitbox.position = position;
         }
 
         public void Reset()
         {
             health = maxHealth;
+            score = 0;
+            isDead = false;
         }
 
         public bool GetWallCollision(Circle circle, Vector2 offset)
@@ -138,10 +164,18 @@ namespace BoxheadGame2
             return false;
         }
 
+        public void Death()
+        {
+            isDead = true;
+            health = 0;
+            controller.SetMessage("GAME OVER\nSCORE: " + score);
+            respawnTimer.Reset();
+        }
+
         public void Draw(SpriteBatch spriteBatch)
         {
             Vector2 origin = new Vector2(texture.Width / 2, texture.Height / 2);
-            spriteBatch.Draw(texture, position, null, Color.White, rotation, origin, 1, SpriteEffects.None, 1);
+            spriteBatch.Draw(texture, position, null, Color.White, rotation, origin, 1, SpriteEffects.None, 0.99f);
         }
     }
 }

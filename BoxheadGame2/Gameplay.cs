@@ -19,9 +19,11 @@ namespace BoxheadGame2
         public Camera camera;
 
         private KeyboardState state, prevState;
-        private bool drawHitbox = true;
+        private bool drawHitbox = false;
 
-        private string dirPath = @"C:\Users\HanThi\Disk Google\Dropbox\Projects\BoxheadGame2\level.txt";
+        //private string dirPath = @"C:\Users\HanThi\Disk Google\Dropbox\Projects\BoxheadGame2\level.txt";
+        private string dirPath = @"level.txt";
+
         private StreamReader stream;
 
         public Gameplay(GraphicsDeviceManager graphics, Controller controller, Player player)
@@ -162,16 +164,6 @@ namespace BoxheadGame2
             prevState = state;
             state = Keyboard.GetState();
 
-            //if (state.IsKeyDown(Keys.R))
-            if (controller.timeTillSpawn.value == 0)
-            {
-                foreach (Spawner s in controller.spawnList)
-                {
-                    //controller.GenerateEnemyZombie(tZombie, new Rectangle(tCrate.Width, tCrate.Height, graphics.PreferredBackBufferWidth - 2 * tCrate.Width, graphics.PreferredBackBufferHeight - 2 * tCrate.Height));
-                    controller.GenerateEnemyZombie(tZombie, s.spawnRect);
-                }
-            }
-
             if (state.IsKeyDown(Keys.T) && prevState.IsKeyUp(Keys.T))
             {
                 drawHitbox = !drawHitbox;
@@ -184,16 +176,25 @@ namespace BoxheadGame2
 
         public void ResetLevel()
         {
+            controller.difficulty = 1;
+            controller.spawnCounter = 0;
+            controller.keepSpawning = true;
+            controller.timeTillSpawn.Reset();
             controller.crateList.Clear();
             controller.enemyList.Clear();
             controller.bulletList.Clear();
+            controller.spawnList.Clear();
             player.Reset();
-            camera = null;
+            camera = new Camera(player, graphics);
+            player.camera = camera;
+            player.controller = controller;
+            player.tBullet = tBullet;
+            LoadLevel();
         }
 
         public void Draw(SpriteBatch spriteBatch)
         {
-            spriteBatch.Begin(SpriteSortMode.BackToFront, BlendState.AlphaBlend, null, null, null, null, camera.GetTransformMatrix());
+            spriteBatch.Begin(SpriteSortMode.FrontToBack, BlendState.AlphaBlend, null, null, null, null, camera.GetTransformMatrix());
 
             //controller.Draw(spriteBatch, camera);
             player.Draw(spriteBatch);

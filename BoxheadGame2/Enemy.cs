@@ -15,6 +15,7 @@ namespace BoxheadGame2
         public float rotation, radius;
         public Circle hitbox;
         public Controller controller;
+        public int scoreValue;
 
         public enum State { Attack, Idle, Dead };
 
